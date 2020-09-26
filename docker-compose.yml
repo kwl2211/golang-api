@@ -1,0 +1,48 @@
+version: "3"
+services:
+  authservice:
+    image: kewal/golangapi:latest
+    restart: always
+    network_mode: host
+    container_name: authServiceCon
+    depends_on:
+      - mysql
+      - kafka
+      - redis
+    ports:
+      - 8080:8080
+  mysql:
+    image: mysql
+    ports:
+      - 3306:3306
+    container_name: mysql_container
+    network_mode: host
+    environment:
+      MYSQL_DATABASE: testDB
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+
+  redis:
+    image: redis
+    container_name: cache
+    expose:
+      - 6379
+
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+
+  app:
+    # some definitions
+    links:
+      - redis
+    environment:
+      - REDIS_URL=localhost
